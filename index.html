@@ -435,10 +435,10 @@ function processVoice(text) {
   else if (text.includes("mati") || text.includes("off") || text.includes("padam")) cmd = "all_off";
 
   if (cmd && client && client.connected) {
-    client.publish(TOPIC_CMD, cmd);
-    result.style.color = "#3b6d11";
-    result.textContent += ' → Perintah "' + cmd + '" dikirim!';
-    addLog(cmd, cmd.includes("on") ? "on" : "off");
+  client.publish(topicRelay, cmd);
+  result.style.color = "#3b6d11";
+  result.textContent += ' → Perintah "' + cmd + '" dikirim!';
+  addLog(`Voice command: ${cmd}`);
   } else if (!cmd) {
     result.style.color = "#d85a30";
     result.textContent += " → Perintah tidak dikenali.";
