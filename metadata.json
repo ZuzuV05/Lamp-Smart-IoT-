@@ -1,0 +1,6 @@
+{
+  "name": "Smart IoT Lamp Dashboard",
+  "description": "A dashboard for ESP32 with 4 relays (lamps) and DHT22 temperature/humidity sensor using MQTT.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
