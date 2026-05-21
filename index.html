@@ -14,112 +14,78 @@
       --text: #ffffff;
       --text-dim: #94a3b8;
       --danger: #cf6679;
-      --danger-hover: #b35667;
       --success: #4ade80;
     }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Inter', -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
       padding: 24px;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
       background-image: radial-gradient(circle at 0% 0%, #1e293b 0%, transparent 50%), radial-gradient(circle at 100% 100%, #0c4a6e 0%, transparent 50%);
       background-attachment: fixed;
     }
     header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-      gap: 15px;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; flex-wrap: wrap; gap: 15px;
     }
-    h1 {
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .logo-dot {
-      width: 12px; height: 12px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 15px var(--accent);
-    }
+    h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
+    .logo-dot { width: 12px; height: 12px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 15px var(--accent); }
     .badge {
-      background: rgba(34, 197, 94, 0.1);
-      border: 1px solid rgba(34, 197, 94, 0.2);
-      color: var(--success);
-      padding: 6px 16px;
-      border-radius: 100px;
-      font-size: 13px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2);
+      color: var(--success); padding: 6px 16px; border-radius: 100px;
+      font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px;
     }
-    .status-offline {
-       background: rgba(207, 102, 121, 0.1);
-       border: 1px solid rgba(207, 102, 121, 0.2);
-       color: var(--danger);
-    }
-    .dot {
-      width: 8px; height: 8px; border-radius: 50%; background: var(--success);
-    }
+    .status-offline { background: rgba(207, 102, 121, 0.1); border: 1px solid rgba(207, 102, 121, 0.2); color: var(--danger); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
     .status-offline .dot { background: var(--danger); }
 
-    .main-layout {
+    /* SENSOR ROW */
+    .sensor-row {
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 24px;
-      flex-grow: 1;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
     }
-    @media (min-width: 900px) {
-      .main-layout { grid-template-columns: 280px 1fr; }
-    }
-
-    .sensor-panel { display: flex; flex-direction: column; gap: 24px; }
     .glass-card {
-       background: var(--card); border: 1px solid var(--border);
-       backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-       border-radius: 24px; padding: 24px;
+      background: var(--card); border: 1px solid var(--border);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-radius: 24px; padding: 24px;
     }
-    .sensor-card { flex: 1; display: flex; flex-direction: column; justify-content: center; }
     .sensor-label { font-size: 14px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; }
     .sensor-value { font-size: 48px; font-weight: 300; margin: 10px 0; color: var(--text); }
 
-    .master-controls { display: flex; flex-direction: column; gap: 16px; min-width: 100%; }
-    @media (min-width: 900px) {
-      .master-controls { flex-direction: column; }
+    /* CONTROL ROW */
+    .control-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
     }
-    .master-controls-row {
-      display: flex; gap: 16px;
+    @media (max-width: 700px) {
+      .control-row { grid-template-columns: 1fr 1fr; }
+      .sensor-row { grid-template-columns: 1fr 1fr; }
     }
-
     .btn {
-       flex: 1; padding: 14px; border-radius: 16px; border: 1px solid var(--border);
-       background: var(--card); color: white; font-weight: 600; cursor: pointer;
-       text-transform: uppercase; font-size: 12px; letter-spacing: 0.05em; transition: all 0.2s;
+      padding: 14px; border-radius: 16px; border: 1px solid var(--border);
+      background: var(--card); color: white; font-weight: 600; cursor: pointer;
+      text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; transition: all 0.2s;
+      white-space: nowrap;
     }
     .btn:hover { background: rgba(0, 210, 255, 0.1); border-color: var(--accent); color: var(--accent); }
-    .btn-danger:hover { background: rgba(207, 102, 121, 0.1); border-color: var(--danger); color: var(--danger); }
+    .btn-stop:hover { background: rgba(207, 102, 121, 0.1); border-color: var(--danger); color: var(--danger); }
 
+    /* LAMPS GRID */
     .lamps-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;
+      margin-bottom: 24px;
     }
-    .lamp-card {
-      display: flex; flex-direction: column; gap: 16px; transition: all 0.3s ease; align-items: flex-start;
-    }
+    .lamp-card { display: flex; flex-direction: column; gap: 16px; transition: all 0.3s ease; align-items: flex-start; }
     .lamp-header { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
     .lamp-icon {
-       width: 48px; height: 48px; border-radius: 16px; background: rgba(255,255,255,0.05);
-       display: flex; align-items: center; justify-content: center; font-size: 24px; transition: all 0.3s;
+      width: 48px; height: 48px; border-radius: 16px; background: rgba(255,255,255,0.05);
+      display: flex; align-items: center; justify-content: center; font-size: 24px; transition: all 0.3s;
     }
     .lamp-on .lamp-icon { background: var(--accent); color: #000; box-shadow: 0 0 20px rgba(0, 210, 255, 0.4); }
     .lamp-title { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
@@ -137,11 +103,15 @@
     input:checked + .slider { background: var(--accent); border-color: var(--accent); }
     input:checked + .slider:before { transform: translateX(24px); }
 
-    .log-panel { height: 200px; margin-top: 24px; display: flex; flex-direction: column; }
-    .log-title { font-size: 12px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 12px; padding-left: 4px; display: flex; justify-content: space-between; align-items: center;}
-    .clear-log { font-size: 12px; color: var(--text-dim); background: none; border: none; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; margin-left:auto;}
-    .clear-log:hover { color: var(--danger); text-decoration: underline; }
-    .log-content { flex: 1; overflow-y: auto; font-family: monospace; font-size: 12px; padding: 16px; color: var(--text-dim); }
+    /* LOG */
+    .log-panel { display: flex; flex-direction: column; }
+    .log-title {
+      font-size: 12px; text-transform: uppercase; color: var(--text-dim);
+      margin-bottom: 12px; padding-left: 4px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .clear-log { font-size: 12px; color: var(--text-dim); background: none; border: none; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; }
+    .clear-log:hover { color: var(--danger); }
+    .log-content { height: 180px; overflow-y: auto; font-family: monospace; font-size: 12px; padding: 16px; color: var(--text-dim); }
     .log-list { list-style-type: none; }
     .log-list li { margin-bottom: 6px; display: flex; gap: 12px; }
     .log-time { color: var(--accent); white-space: nowrap; }
@@ -159,102 +129,67 @@
     <div id="mqtt-status" class="badge"><div class="dot"></div> Menghubungkan...</div>
   </header>
 
-  <div class="main-layout">
-    <div class="sensor-panel">
-      <div class="glass-card sensor-card">
-        <span class="sensor-label">Suhu</span>
-        <div class="sensor-value" id="temp-display">-- °C</div>
-      </div>
-      <div class="glass-card sensor-card">
-        <span class="sensor-label">Kelembapan</span>
-        <div class="sensor-value" id="humid-display">-- %</div>
-      </div>
-      <div class="master-controls">
-        <div class="master-controls-row">
-            <button class="btn btn-primary" onclick="setAll(true)">Semua ON</button>
-            <button class="btn btn-danger" onclick="setAll(false)">Semua OFF</button>
+  <!-- SENSOR ROW -->
+  <div class="sensor-row">
+    <div class="glass-card">
+      <span class="sensor-label">Suhu</span>
+      <div class="sensor-value" id="temp-display">-- °C</div>
+    </div>
+    <div class="glass-card">
+      <span class="sensor-label">Kelembapan</span>
+      <div class="sensor-value" id="humid-display">-- %</div>
+    </div>
   </div>
-  <div class="master-controls-row">
+
+  <!-- CONTROL ROW -->
+  <div class="control-row">
+    <button class="btn" onclick="setAll(true)">⚡ Semua ON</button>
+    <button class="btn btn-stop" onclick="setAll(false)">🔴 Semua OFF</button>
     <button class="btn" onclick="publishCommand('variasi1')">🎉 Variasi 1</button>
     <button class="btn" onclick="publishCommand('variasi2')">🎊 Variasi 2</button>
+    <button class="btn btn-stop" onclick="publishCommand('variasi_off')">⏹ Stop Variasi</button>
   </div>
-  <div class="master-controls-row">
-    <button class="btn btn-danger" onclick="publishCommand('variasi_off')">⏹ Stop Variasi</button>
-  </div>
-</div>
-        </div>
-      </div>
-    </div>
 
-    <div class="lamps-grid">
-      <!-- Lamp 1 -->
-      <div class="glass-card lamp-card" id="card-1">
-        <div class="lamp-header">
-          <div class="lamp-icon">💡</div>
-          <label class="switch">
-            <input type="checkbox" id="relay-1" onchange="toggleRelay(1)">
-            <span class="slider"></span>
-          </label>
-        </div>
-        <div>
-          <div class="lamp-title">Lampu 1</div>
-          <div style="font-size:12px;color:var(--text-dim)">Relay 1</div>
-        </div>
+  <!-- LAMPS GRID -->
+  <div class="lamps-grid">
+    <div class="glass-card lamp-card" id="card-1">
+      <div class="lamp-header">
+        <div class="lamp-icon">💡</div>
+        <label class="switch"><input type="checkbox" id="relay-1" onchange="toggleRelay(1)"><span class="slider"></span></label>
       </div>
-      <!-- Lamp 2 -->
-      <div class="glass-card lamp-card" id="card-2">
-        <div class="lamp-header">
-          <div class="lamp-icon">💡</div>
-          <label class="switch">
-            <input type="checkbox" id="relay-2" onchange="toggleRelay(2)">
-            <span class="slider"></span>
-          </label>
-        </div>
-        <div>
-          <div class="lamp-title">Lampu 2</div>
-          <div style="font-size:12px;color:var(--text-dim)">Relay 2</div>
-        </div>
+      <div><div class="lamp-title">Lampu 1</div><div style="font-size:12px;color:var(--text-dim)">Relay 1</div></div>
+    </div>
+    <div class="glass-card lamp-card" id="card-2">
+      <div class="lamp-header">
+        <div class="lamp-icon">💡</div>
+        <label class="switch"><input type="checkbox" id="relay-2" onchange="toggleRelay(2)"><span class="slider"></span></label>
       </div>
-      <!-- Lamp 3 -->
-      <div class="glass-card lamp-card" id="card-3">
-        <div class="lamp-header">
-          <div class="lamp-icon">💡</div>
-          <label class="switch">
-            <input type="checkbox" id="relay-3" onchange="toggleRelay(3)">
-            <span class="slider"></span>
-          </label>
-        </div>
-        <div>
-          <div class="lamp-title">Lampu 3</div>
-          <div style="font-size:12px;color:var(--text-dim)">Relay 3</div>
-        </div>
+      <div><div class="lamp-title">Lampu 2</div><div style="font-size:12px;color:var(--text-dim)">Relay 2</div></div>
+    </div>
+    <div class="glass-card lamp-card" id="card-3">
+      <div class="lamp-header">
+        <div class="lamp-icon">💡</div>
+        <label class="switch"><input type="checkbox" id="relay-3" onchange="toggleRelay(3)"><span class="slider"></span></label>
       </div>
-      <!-- Lamp 4 -->
-      <div class="glass-card lamp-card" id="card-4">
-        <div class="lamp-header">
-          <div class="lamp-icon">💡</div>
-          <label class="switch">
-            <input type="checkbox" id="relay-4" onchange="toggleRelay(4)">
-            <span class="slider"></span>
-          </label>
-        </div>
-        <div>
-          <div class="lamp-title">Lampu 4</div>
-          <div style="font-size:12px;color:var(--text-dim)">Relay 4</div>
-        </div>
+      <div><div class="lamp-title">Lampu 3</div><div style="font-size:12px;color:var(--text-dim)">Relay 3</div></div>
+    </div>
+    <div class="glass-card lamp-card" id="card-4">
+      <div class="lamp-header">
+        <div class="lamp-icon">💡</div>
+        <label class="switch"><input type="checkbox" id="relay-4" onchange="toggleRelay(4)"><span class="slider"></span></label>
       </div>
+      <div><div class="lamp-title">Lampu 4</div><div style="font-size:12px;color:var(--text-dim)">Relay 4</div></div>
     </div>
   </div>
 
+  <!-- LOG -->
   <div class="log-panel">
     <div class="log-title">
       Activity Log
       <button class="clear-log" onclick="clearLog()">Clear</button>
     </div>
     <div class="glass-card log-content">
-      <ul class="log-list" id="log-list">
-        <!-- Logs appear here -->
-      </ul>
+      <ul class="log-list" id="log-list"></ul>
     </div>
   </div>
 
@@ -262,114 +197,82 @@
     const brokerUrl = "wss://broker.hivemq.com:8884/mqtt";
     const topicRelay = "smarthome/relay";
     const topicSensor = "smarthome/sensor";
-    
-    // Connect to MQTT broker
-    const client = mqtt.connect(brokerUrl);
-    
+
+    const client = mqtt.connect(brokerUrl, { clientId: 'web_' + Math.random().toString(16).slice(2,8) });
+
     const statusEl = document.getElementById('mqtt-status');
-    const tempEl = document.getElementById('temp-display');
-    const humidEl = document.getElementById('humid-display');
-    const logList = document.getElementById('log-list');
+    const tempEl   = document.getElementById('temp-display');
+    const humidEl  = document.getElementById('humid-display');
+    const logList  = document.getElementById('log-list');
 
     function addLog(message) {
       const li = document.createElement('li');
       const now = new Date();
-      const timeStr = now.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second:'2-digit' });
+      const timeStr = now.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
       li.innerHTML = `<span class="log-time">[${timeStr}]</span> <span>${message}</span>`;
       logList.insertBefore(li, logList.firstChild);
-      
-      // keep only last 50 logs
-      if(logList.children.length > 50) {
-        logList.removeChild(logList.lastChild);
-      }
+      if (logList.children.length > 50) logList.removeChild(logList.lastChild);
     }
-    
-    function clearLog() {
-      logList.innerHTML = '';
-      addLog("Log cleared");
-    }
+
+    function clearLog() { logList.innerHTML = ''; addLog("Log cleared"); }
 
     client.on('connect', () => {
       statusEl.innerHTML = '<div class="dot"></div> Terhubung (Online)';
-      statusEl.className = 'badge status-online';
+      statusEl.className = 'badge';
       addLog("Berhasil terhubung ke broker MQTT.");
-      
-      // Subscribe to sensors
-      client.subscribe(topicSensor, (err) => {
-        if (!err) {
-          addLog(`Subscribed ke topik: ${topicSensor}`);
-        } else {
-          addLog(`Gagal subscribe: ${err}`);
-        }
-      });
+      client.subscribe(topicSensor);
+      client.subscribe(topicRelay);
     });
 
     client.on('message', (topic, message) => {
       const msg = message.toString();
-      if(topic === topicSensor) {
-        // Format: "Suhu: 27.5C | Kelembapan: 65.2%"
+      if (topic === topicSensor) {
         try {
           const parts = msg.split('|');
-          if(parts.length === 2) {
-            const t = parts[0].replace('Suhu:', '').trim();
-            const h = parts[1].replace('Kelembapan:', '').trim();
-            tempEl.innerText = t || '-- °C';
-            humidEl.innerText = h || '-- %';
+          if (parts.length === 2) {
+            tempEl.innerText  = parts[0].replace('Suhu:', '').trim();
+            humidEl.innerText = parts[1].replace('Kelembapan:', '').trim();
           }
-        } catch(e) {
-          console.error("Failed parsing sensor data:", e);
+        } catch(e) {}
+      }
+      if (topic === topicRelay) {
+        if (msg === 'all_on')  { for(let i=1;i<=4;i++) updateLampUI(i,true); }
+        else if (msg === 'all_off' || msg === 'variasi_off') { for(let i=1;i<=4;i++) updateLampUI(i,false); }
+        else {
+          const m = msg.match(/relay(\d)_(on|off)/);
+          if (m) updateLampUI(parseInt(m[1]), m[2]==='on');
         }
       }
     });
 
-    client.on('offline', () => {
-      statusEl.innerHTML = '<div class="dot"></div> Terputus (Offline)';
-      statusEl.className = 'badge status-offline';
-      addLog("Terputus dari broker MQTT.");
-    });
-    
-    client.on('reconnect', () => {
-      statusEl.innerHTML = '<div class="dot"></div> Menghubungkan ulang...';
-      statusEl.className = 'badge status-offline';
-    });
-
-    client.on('error', (err) => {
-      addLog(`MQTT Error: ${err.message}`);
-    });
+    client.on('offline',   () => { statusEl.innerHTML = '<div class="dot"></div> Terputus (Offline)';       statusEl.className = 'badge status-offline'; addLog("Terputus dari broker MQTT."); });
+    client.on('reconnect', () => { statusEl.innerHTML = '<div class="dot"></div> Menghubungkan ulang...';   statusEl.className = 'badge status-offline'; });
+    client.on('error', (err) => { addLog(`MQTT Error: ${err.message}`); });
 
     function publishCommand(cmd) {
-      if(client.connected) {
+      if (client.connected) {
         client.publish(topicRelay, cmd);
         addLog(`Sent command: ${cmd}`);
       } else {
-        addLog(`Gagal kirim cmd '${cmd}', MQTT terputus.`);
+        addLog(`Gagal kirim '${cmd}', MQTT terputus.`);
       }
     }
 
     function updateLampUI(index, isOn) {
-      const card = document.getElementById(`card-${index}`);
+      const card     = document.getElementById(`card-${index}`);
       const checkbox = document.getElementById(`relay-${index}`);
       checkbox.checked = isOn;
-      if(isOn) {
-        card.classList.add('lamp-on');
-      } else {
-        card.classList.remove('lamp-on');
-      }
+      isOn ? card.classList.add('lamp-on') : card.classList.remove('lamp-on');
     }
 
     function toggleRelay(index) {
-      const checkbox = document.getElementById(`relay-${index}`);
-      const isOn = checkbox.checked;
-      const cmd = `relay${index}_${isOn ? 'on' : 'off'}`;
-      
+      const isOn = document.getElementById(`relay-${index}`).checked;
       updateLampUI(index, isOn);
-      publishCommand(cmd);
+      publishCommand(`relay${index}_${isOn ? 'on' : 'off'}`);
     }
 
     function setAll(turnOn) {
-      for(let i=1; i<=4; i++) {
-        updateLampUI(i, turnOn);
-      }
+      for (let i=1; i<=4; i++) updateLampUI(i, turnOn);
       publishCommand(turnOn ? 'all_on' : 'all_off');
     }
   </script>
