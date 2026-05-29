@@ -61,11 +61,12 @@
       display: grid;
       grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
       gap: 12px;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
     }
     @media (max-width: 700px) {
       .control-row { grid-template-columns: 1fr 1fr; }
       .sensor-row { grid-template-columns: 1fr 1fr; }
+      .voice-panel { flex-direction: column; align-items: stretch; }
     }
     .btn {
       padding: 14px; border-radius: 16px; border: 1px solid var(--border);
@@ -75,6 +76,44 @@
     }
     .btn:hover { background: rgba(0, 210, 255, 0.1); border-color: var(--accent); color: var(--accent); }
     .btn-stop:hover { background: rgba(207, 102, 121, 0.1); border-color: var(--danger); color: var(--danger); }
+
+    /* VOICE PANEL */
+    .voice-panel {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 24px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 16px 20px;
+    }
+    .voice-btn {
+      width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--border);
+      background: rgba(255,255,255,0.05); color: white; font-size: 22px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .voice-btn:hover { border-color: var(--accent); background: rgba(0,210,255,0.1); }
+    .voice-btn.listening {
+      border-color: var(--danger);
+      background: rgba(207, 102, 121, 0.15);
+      box-shadow: 0 0 0 6px rgba(207,102,121,0.15);
+      animation: pulse 1.2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 4px rgba(207,102,121,0.15); }
+      50%       { box-shadow: 0 0 0 10px rgba(207,102,121,0.05); }
+    }
+    .voice-info { flex: 1; min-width: 0; }
+    .voice-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 4px; }
+    .voice-transcript {
+      font-size: 14px; color: var(--text); font-style: italic;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .voice-result {
+      font-size: 12px; padding: 4px 12px; border-radius: 100px;
+      font-weight: 600; white-space: nowrap; flex-shrink: 0;
+    }
+    .voice-result.ok  { background: rgba(74,222,128,0.1); color: var(--success); border: 1px solid rgba(74,222,128,0.2); }
+    .voice-result.err { background: rgba(207,102,121,0.1); color: var(--danger);  border: 1px solid rgba(207,102,121,0.2); }
+    .voice-result.hidden { display: none; }
 
     /* LAMPS GRID */
     .lamps-grid {
@@ -150,6 +189,16 @@
     <button class="btn btn-stop" onclick="publishCommand('variasi_off')">⏹ Stop Variasi</button>
   </div>
 
+  <!-- VOICE PANEL -->
+  <div class="voice-panel">
+    <button class="voice-btn" id="voice-btn" onclick="toggleVoice()" title="Klik untuk bicara">🎤</button>
+    <div class="voice-info">
+      <div class="voice-label" id="voice-label">Kontrol Suara — Klik mikrofon lalu bicara</div>
+      <div class="voice-transcript" id="voice-transcript">Contoh: "Nyalakan lampu 1" · "Matikan semua" · "Variasi 2"</div>
+    </div>
+    <div class="voice-result hidden" id="voice-result"></div>
+  </div>
+
   <!-- LAMPS GRID -->
   <div class="lamps-grid">
     <div class="glass-card lamp-card" id="card-1">
@@ -194,8 +243,9 @@
   </div>
 
   <script>
-    const brokerUrl = "wss://broker.hivemq.com:8884/mqtt";
-    const topicRelay = "smarthome/relay";
+    // ==================== MQTT ====================
+    const brokerUrl   = "wss://broker.hivemq.com:8884/mqtt";
+    const topicRelay  = "smarthome/relay";
     const topicSensor = "smarthome/sensor";
 
     const client = mqtt.connect(brokerUrl, { clientId: 'web_' + Math.random().toString(16).slice(2,8) });
@@ -245,8 +295,8 @@
       }
     });
 
-    client.on('offline',   () => { statusEl.innerHTML = '<div class="dot"></div> Terputus (Offline)';       statusEl.className = 'badge status-offline'; addLog("Terputus dari broker MQTT."); });
-    client.on('reconnect', () => { statusEl.innerHTML = '<div class="dot"></div> Menghubungkan ulang...';   statusEl.className = 'badge status-offline'; });
+    client.on('offline',   () => { statusEl.innerHTML = '<div class="dot"></div> Terputus (Offline)';     statusEl.className = 'badge status-offline'; addLog("Terputus dari broker MQTT."); });
+    client.on('reconnect', () => { statusEl.innerHTML = '<div class="dot"></div> Menghubungkan ulang...'; statusEl.className = 'badge status-offline'; });
     client.on('error', (err) => { addLog(`MQTT Error: ${err.message}`); });
 
     function publishCommand(cmd) {
@@ -274,6 +324,142 @@
     function setAll(turnOn) {
       for (let i=1; i<=4; i++) updateLampUI(i, turnOn);
       publishCommand(turnOn ? 'all_on' : 'all_off');
+    }
+
+    // ==================== VOICE CONTROL ====================
+    const voiceBtn        = document.getElementById('voice-btn');
+    const voiceLabel      = document.getElementById('voice-label');
+    const voiceTranscript = document.getElementById('voice-transcript');
+    const voiceResult     = document.getElementById('voice-result');
+
+    let recognition = null;
+    let isListening = false;
+
+    // Cek dukungan browser
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      voiceLabel.textContent = 'Kontrol Suara — Browser tidak mendukung (gunakan Chrome)';
+      voiceBtn.disabled = true;
+      voiceBtn.style.opacity = '0.4';
+    } else {
+      recognition = new SpeechRecognition();
+      recognition.lang          = 'id-ID'; // Bahasa Indonesia
+      recognition.interimResults = true;   // Tampilkan hasil sementara
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        isListening = true;
+        voiceBtn.classList.add('listening');
+        voiceBtn.textContent = '⏹';
+        voiceLabel.textContent = 'Mendengarkan... bicara sekarang';
+        voiceTranscript.textContent = '...';
+        voiceResult.className = 'voice-result hidden';
+      };
+
+      recognition.onresult = (event) => {
+        let interim = '';
+        let final   = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const t = event.results[i][0].transcript;
+          event.results[i].isFinal ? final += t : interim += t;
+        }
+        voiceTranscript.textContent = final || interim || '...';
+        if (final) processVoiceCommand(final.trim());
+      };
+
+      recognition.onerror = (event) => {
+        const errMap = {
+          'no-speech'       : 'Tidak ada suara terdeteksi, coba lagi.',
+          'audio-capture'   : 'Mikrofon tidak ditemukan.',
+          'not-allowed'     : 'Izin mikrofon ditolak. Aktifkan di pengaturan browser.',
+          'network'         : 'Koneksi bermasalah, coba lagi.',
+        };
+        showVoiceResult(errMap[event.error] || `Error: ${event.error}`, false);
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        voiceBtn.classList.remove('listening');
+        voiceBtn.textContent = '🎤';
+        voiceLabel.textContent = 'Kontrol Suara — Klik mikrofon lalu bicara';
+      };
+    }
+
+    function toggleVoice() {
+      if (!recognition) return;
+      if (isListening) {
+        recognition.stop();
+      } else {
+        try { recognition.start(); }
+        catch(e) { addLog('Voice: gagal memulai — ' + e.message); }
+      }
+    }
+
+    function showVoiceResult(text, success) {
+      voiceResult.textContent = text;
+      voiceResult.className   = 'voice-result ' + (success ? 'ok' : 'err');
+      setTimeout(() => { voiceResult.className = 'voice-result hidden'; }, 3000);
+    }
+
+    // ==================== VOICE COMMAND PARSER ====================
+    function processVoiceCommand(raw) {
+      const text = raw.toLowerCase().trim();
+      addLog(`🎤 Suara: "${raw}"`);
+
+      // --- Stop variasi ---
+      if (text.includes('variasi') && (text.includes('mati') || text.includes('off') || text.includes('stop') || text.includes('berhenti'))) {
+        publishCommand('variasi_off');
+        for(let i=1;i<=4;i++) updateLampUI(i,false);
+        showVoiceResult('✓ Variasi dimatikan', true); return;
+      }
+
+      // --- Nyalakan variasi ---
+      if (text.includes('variasi')) {
+        const hasOne = text.includes('1') || text.includes('satu');
+        const hasTwo = text.includes('2') || text.includes('dua');
+        if (hasOne && !hasTwo) {
+          publishCommand('variasi1');
+          showVoiceResult('✓ Variasi 1 aktif', true);
+        } else if (hasTwo && !hasOne) {
+          publishCommand('variasi2');
+          showVoiceResult('✓ Variasi 2 aktif', true);
+        } else {
+          showVoiceResult('Sebutkan variasi 1 atau 2', false);
+        }
+        return;
+      }
+
+      // --- Cek on/off ---
+      const isOn  = text.includes('nyala') || text.includes('hidup') || text.includes('on');
+      const isOff = text.includes('mati')  || text.includes('off')   || text.includes('padam');
+      if (!isOn && !isOff) {
+        showVoiceResult('Perintah tidak dikenali', false);
+        addLog(`🎤 Tidak dikenali: "${raw}"`);
+        return;
+      }
+
+      // --- Deteksi nomor lampu (word boundary) ---
+      function detectLamp(t) {
+        if (t.includes('satu'))  return 1;
+        if (t.includes('dua'))   return 2;
+        if (t.includes('tiga'))  return 3;
+        if (t.includes('empat')) return 4;
+        // Angka sebagai kata utuh
+        const m = t.match(/(?<!\d)([1-4])(?!\d)/);
+        return m ? parseInt(m[1]) : null;
+      }
+
+      const lampNum = detectLamp(text);
+
+      if (lampNum === null) {
+        // Semua lampu
+        setAll(isOn);
+        showVoiceResult(isOn ? '✓ Semua lampu ON' : '✓ Semua lampu OFF', true);
+      } else {
+        updateLampUI(lampNum, isOn);
+        publishCommand(`relay${lampNum}_${isOn ? 'on' : 'off'}`);
+        showVoiceResult(`✓ Lampu ${lampNum} ${isOn ? 'ON' : 'OFF'}`, true);
+      }
     }
   </script>
 </body>
