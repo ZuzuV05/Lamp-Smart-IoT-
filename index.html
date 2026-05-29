@@ -249,6 +249,7 @@
     const topicSensor = "smarthome/sensor";
 
     const client = mqtt.connect(brokerUrl, { clientId: 'web_' + Math.random().toString(16).slice(2,8) });
+    let lastSensorMsg = '';
 
     const statusEl = document.getElementById('mqtt-status');
     const tempEl   = document.getElementById('temp-display');
@@ -280,8 +281,14 @@
         try {
           const parts = msg.split('|');
           if (parts.length === 2) {
-            tempEl.innerText  = parts[0].replace('Suhu:', '').trim();
-            humidEl.innerText = parts[1].replace('Kelembapan:', '').trim();
+            const suhu       = parts[0].replace('Suhu:', '').trim();
+            const kelembapan = parts[1].replace('Kelembapan:', '').trim();
+            tempEl.innerText  = suhu;
+            humidEl.innerText = kelembapan;
+            if (msg !== lastSensorMsg) {
+              addLog(`📡 Sensor — 🌡 Suhu: ${suhu} | 💧 Kelembapan: ${kelembapan}`);
+              lastSensorMsg = msg;
+            }
           }
         } catch(e) {}
       }
@@ -405,6 +412,24 @@
     function processVoiceCommand(raw) {
       const text = raw.toLowerCase().trim();
       addLog(`🎤 Suara: "${raw}"`);
+
+      // --- Info sensor DHT ---
+      const isSensorQuery =
+        text.includes('info dht') || text.includes('info sensor') ||
+        text.includes('berapa suhu') || text.includes('berapa temperatur') ||
+        text.includes('berapa kelembapan') || text.includes('berapa lembap') ||
+        text.includes('cek suhu') || text.includes('cek sensor');
+
+      if (isSensorQuery) {
+        // Ambil nilai dari display yang sudah ada
+        const suhu      = tempEl.innerText  || '--';
+        const kelembapan = humidEl.innerText || '--';
+        addLog(`🌡 Suhu: ${suhu} | 💧 Kelembapan: ${kelembapan}`);
+        showVoiceResult(`🌡 ${suhu} · 💧 ${kelembapan}`, true);
+        // Minta ESP32 publish ulang data terbaru ke MQTT + Telegram
+        publishCommand('get_sensor');
+        return;
+      }
 
       // --- Stop variasi ---
       if (text.includes('variasi') && (text.includes('mati') || text.includes('off') || text.includes('stop') || text.includes('berhenti'))) {
